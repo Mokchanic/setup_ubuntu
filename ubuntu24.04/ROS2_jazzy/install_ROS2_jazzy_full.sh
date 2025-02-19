@@ -60,7 +60,7 @@ python3 -m pip install -U \
 
 ## Make base ROS2_ws
 source /opt/ros/jazzy/setup.bash
-export ROBOT_WS=~/local_workspace/robot_ws
+export ROBOT_WS=~/robot_workspace/robot_ws
 mkdir -p ${ROBOT_WS}/src
 cd ${ROBOT_WS}
 colcon build --symlink-install
@@ -111,4 +111,3 @@ echo "alias killgazebo='killall -9 gazebo & killall -9 gzserver  & killall -9 gz
 echo "" >> ~/.bashrc
 
 source ~/.bashrc
-

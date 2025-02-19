@@ -20,17 +20,17 @@ colcon mixin update default
 sudo apt install python3-vcstool
 
 ## Make moveit2_ws
-export MOVEIT_WS=~/workspace/moveit2_ws
-mkdir -p $MOVEIT_WS/src
-cd ~/workspace/moveit2_ws/src
+export MOVEIT_WS=~/robot_workspace/moveit2_ws
+mkdir -p ${MOVEIT_WS}/src
+cd ${MOVEIT_WS}/src
 git clone --branch humble https://github.com/ros-planning/moveit2_tutorials
 vcs import < moveit2_tutorials/moveit2_tutorials.repos
 
 sudo apt update && rosdep install -r --from-paths . --ignore-src --rosdistro $ROS_DISTRO -y
-cd ~/workspace/moveit2_ws
+cd ${MOVEIT_WS}
 colcon build --mixin release --parallel-workers 1
 
 ## Setup moveit2_ws
-source ~/moveit2_ws/install/setup.bash
-echo 'source ~/workspace/moveit2_ws/install/local_setup.bash' >> ~/.bashrc
+source ${MOVEIT_WS}/install/setup.bash
+echo "source ${MOVEIT_WS}/install/local_setup.bash" >> ~/.bashrc
 
