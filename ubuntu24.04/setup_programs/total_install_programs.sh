@@ -12,8 +12,8 @@ echo "Start all setup!"
 ./install_terminal.sh
 ./install_IDE.sh
 ./install_programs.sh
-./install_docker.sh
 ./install_conda.sh
 ./setup_bashrc.sh
+./install_docker.sh
 
 sudo apt-get clean && sudo rm -rf /var/lib/apt/lists/*

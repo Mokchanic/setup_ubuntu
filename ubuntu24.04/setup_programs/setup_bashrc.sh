@@ -41,3 +41,7 @@ EOF
 else
     echo "Git branch display already present in ~/.bashrc"
 fi
+
+## Timedatectl
+timedatectl set-local-rtc 1 --adjust-system-clock
+timedatectl
