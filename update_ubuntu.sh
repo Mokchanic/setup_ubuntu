@@ -1,6 +1,9 @@
 #!/bin/bash
+set -e
 
-# Update & Upgrade
-echo "Start Update & Upgrade ..."
-sudo apt-get update && sudo apt-get -y upgrade && sudo apt-get -y autoremove
-
+# System update, upgrade, and cleanup
+echo "Starting apt update & upgrade..."
+sudo apt-get update
+sudo apt-get -y upgrade
+sudo apt-get -y autoremove
+echo "System update completed."

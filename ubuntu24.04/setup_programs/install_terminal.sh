@@ -1,29 +1,20 @@
 #!/bin/bash
+set -e
 
-# Update package lists
-echo "Updating package lists..."
-sudo apt-get update
+echo "=================================================="
+echo " Terminal Utilities Installation"
+echo "=================================================="
 
-# Install Terminator
-# Great for splitting terminals in a GUI environment
-echo "Installing Terminator..."
-sudo apt-get install -y terminator
+sudo apt-get update -q
 
-# Install Vim editor
-# Essential for quick configuration changes in terminal
-echo "Installing Vim..."
-sudo apt-get install -y vim
+# terminator: GUI terminal with split panes
+# vim:        quick in-terminal config editing
+# tmux:       persistent sessions, essential for remote robot work
+sudo apt-get install -y terminator vim tmux
 
-# Install tmux
-# Perfect for persistent sessions and remote work (especially for robot control)
-echo "Installing tmux..."
-sudo apt-get install -y tmux
-
-# Verify installations
 echo "------------------------------"
 terminator --version
-vim --version
+vim --version | head -1
 tmux -V
 echo "------------------------------"
-
 echo "Terminal utilities installation completed."

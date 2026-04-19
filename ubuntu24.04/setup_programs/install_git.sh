@@ -1,22 +1,15 @@
 #!/bin/bash
+set -e
 
-# Ensure dependencies are installed
-if [ -f "./install_curl.sh" ]; then
-    ./install_curl.sh
-fi
+echo "=================================================="
+echo " Git Installation"
+echo "=================================================="
 
-# Install Git
-echo "Installing Git..."
-sudo apt-get update
+sudo apt-get update -q
 sudo apt-get install -y git
 
-# Verify installation
 echo "------------------------------"
 git --version
 echo "------------------------------"
-
 echo "Git installation completed."
-
-# Tip: Run the following commands to configure your git profile
-# git config --global user.name "mokchanic"
-# git config --global user.email "mokok118@kakao.com"
+echo ""

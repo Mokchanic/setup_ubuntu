@@ -1,16 +1,14 @@
 #!/bin/bash
+set -e
 
-# Update package lists to ensure we fetch the latest version
-echo "Updating package lists..."
-sudo apt-get update
+echo "=================================================="
+echo " curl Installation"
+echo "=================================================="
 
-# Install curl
-echo "Installing curl..."
+sudo apt-get update -q
 sudo apt-get install -y curl
 
-# Verify installed version
 echo "------------------------------"
-curl --version
+curl --version | head -1
 echo "------------------------------"
-
-echo "Curl installation completed."
+echo "curl installation completed."

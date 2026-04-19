@@ -1,34 +1,85 @@
 #!/bin/bash
-
-# 에러 발생 시 즉시 중단 (중요)
 set -e
+set -o pipefail
 
-echo "=== [Master Setup] Starting all setup scripts! ==="
+# --------------------------------------------------------------------
+# Master setup script — runs all install steps in dependency order
+# --------------------------------------------------------------------
 
-# 모든 스크립트에 실행 권한 부여
-chmod +x *.sh
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$SCRIPT_DIR"
 
-# 실행 순서 (의존성을 고려한 최적화 순서)
-./setup_dualboot.sh
-./uninstall_firefox.sh
-./install_curl.sh           # 다른 설치의 기초이므로 앞쪽 배치 추천
-./install_git.sh
-./install_github_cli.sh
-./install_build-essential.sh
-./install_cmake_ninja.sh
-./install_clang.sh
-./install_python.sh
-./install_terminal.sh
-./install_IDE.sh
-./install_apps.sh
-./install_conda.sh
-./setup_bashrc.sh
-./install_docker.sh
+# Ensure all child scripts are executable
+chmod +x ./*.sh
 
-# 시스템 정리
-echo "Cleaning up..."
+# Log directory (gitignored via top-level .gitignore)
+LOG_DIR="${SCRIPT_DIR}/log"
+mkdir -p "$LOG_DIR"
+LOG_FILE="${LOG_DIR}/setup_$(date +%Y%m%d_%H%M%S).log"
+
+# Tee everything (stdout + stderr) into the log file from here on
+exec > >(tee -a "$LOG_FILE") 2>&1
+
+echo "=================================================="
+echo " [Master Setup] Starting all install steps"
+echo " Log file: ${LOG_FILE}"
+echo " Start:    $(date)"
+echo "=================================================="
+
+# run_step <script> — runs a step and prints a clear banner; aborts on error
+run_step() {
+    local script="$1"
+    echo ""
+    echo "####################################################"
+    echo "# STEP: ${script}"
+    echo "# Time: $(date '+%F %T')"
+    echo "####################################################"
+    "./${script}"
+}
+
+# 1. Interactive step (must run first, before output is piped).
+#    Users can skip it non-interactively with DUALBOOT_SKIP=1.
+run_step setup_dualboot.sh
+
+# 2. Cleanup / base tooling
+run_step uninstall_firefox.sh
+run_step install_curl.sh
+run_step install_git.sh
+run_step install_github_cli.sh
+
+# 3. Compilers & build tools
+run_step install_build-essential.sh
+run_step install_cmake_ninja.sh
+run_step install_clang.sh
+run_step install_python.sh
+
+# 4. Editors & user-facing apps
+run_step install_terminal.sh
+run_step install_IDE.sh
+run_step install_apps.sh
+
+# 5. Dev environments
+run_step install_conda.sh
+run_step setup_bashrc.sh
+
+# 6. GPU stack (driver first, then container runtime)
+run_step install_nvidia_driver.sh
+run_step install_docker.sh
+
+# 7. Final cleanup
+echo ""
+echo "=================================================="
+echo " Cleaning up apt caches..."
+echo "=================================================="
 sudo apt-get autoremove -y
 sudo apt-get clean
 
-echo "=== [Master Setup] All processes are finished! ==="
-echo "Please REBOOT your system to apply all changes (especially Docker & Conda)."
+echo ""
+echo "=================================================="
+echo " [Master Setup] All steps completed"
+echo " End:       $(date)"
+echo " Log saved: ${LOG_FILE}"
+echo ""
+echo " Please REBOOT to apply all changes"
+echo " (especially NVIDIA driver, Docker group, and Conda init)."
+echo "=================================================="

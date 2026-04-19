@@ -1,19 +1,16 @@
 #!/bin/bash
+set -e
 
-# Update package lists to ensure latest versions
-echo "Updating package lists..."
-sudo apt-get update
+echo "=================================================="
+echo " build-essential Installation"
+echo "=================================================="
 
-# Install build-essential
-echo "Installing build-essential (gcc, g++, make, etc.)..."
+sudo apt-get update -q
 sudo apt-get install -y build-essential
 
-# Verify installation
 echo "------------------------------"
-echo "Build-essential components version:"
-gcc --version
-g++ --version
-make --version
+gcc --version | head -1
+g++ --version | head -1
+make --version | head -1
 echo "------------------------------"
-
 echo "build-essential installation completed."

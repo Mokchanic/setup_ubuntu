@@ -1,7 +1,14 @@
 #!/bin/bash
+set -e
 
-echo "Uninstall programs!"
+echo "=================================================="
+echo " Uninstall Firefox (snap)"
+echo "=================================================="
 
-# Uninstall Firefox
-echo "Uninstalling Firefox ..."
-sudo snap remove firefox
+if snap list firefox &>/dev/null; then
+    echo "Removing Firefox snap..."
+    sudo snap remove firefox
+    echo "Firefox removed."
+else
+    echo "Firefox snap not installed — skipping."
+fi

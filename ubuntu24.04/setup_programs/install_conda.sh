@@ -1,35 +1,88 @@
 #!/bin/bash
+set -e
 
-echo "Starting Miniconda installation..."
+echo "=================================================="
+echo " Mamba (Miniforge) Installation"
+echo "=================================================="
 
-# 1. Download and Install Miniconda
-mkdir -p ~/miniconda3
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
-bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
-rm -rf ~/miniconda3/miniconda.sh
+# Skip if already installed
+if [ -d "$HOME/miniforge3" ]; then
+    echo "Miniforge already installed at ~/miniforge3 — skipping."
+    echo "Remove it manually first if you want a clean reinstall."
+    exit 0
+fi
 
-# 2. Initialize Conda
-eval "$($HOME/miniconda3/bin/conda shell.bash hook)"
-~/miniconda3/bin/conda init bash
+# Ensure wget is available (needed to fetch the installer)
+if ! command -v wget &>/dev/null; then
+    echo "wget not found. Installing wget first..."
+    sudo apt-get update -q && sudo apt-get install -y wget
+fi
 
-# 3. Accept Anaconda Terms of Service (Crucial for 2025/2026 versions)
-echo "Accepting Anaconda Terms of Service..."
-conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/main
-conda tos accept --override-channels --channel https://repo.anaconda.com/pkgs/r
+# 1. Download Miniforge installer (arch-aware: x86_64 / aarch64)
+echo ""
+echo "[1/5] Downloading Miniforge..."
+ARCH=$(uname -m)
+case "$ARCH" in
+    x86_64)  MINIFORGE_ARCH="x86_64"  ;;
+    aarch64) MINIFORGE_ARCH="aarch64" ;;
+    *)
+        echo "Unsupported architecture: $ARCH"
+        echo "Miniforge officially supports only x86_64 and aarch64 on Linux."
+        exit 1
+        ;;
+esac
+echo "Detected architecture: $ARCH (using Miniforge3-Linux-${MINIFORGE_ARCH}.sh)"
+wget -q --show-progress \
+    "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-${MINIFORGE_ARCH}.sh" \
+    -O ~/miniforge.sh
+echo "Download completed."
 
-echo "Configuring Conda channels..."
+# 2. Run installer (batch mode, no prompts)
+echo ""
+echo "[2/5] Installing Miniforge..."
+bash ~/miniforge.sh -b -p ~/miniforge3
+rm -f ~/miniforge.sh
+echo "Install completed."
 
-# 4. Conda-forge configuration
-conda config --add channels conda-forge
-conda config --set channel_priority strict
+# 3. Shell initialization
+#    Note: from mamba 2.x, only `conda init` works — `mamba init` is deprecated.
+echo ""
+echo "[3/5] Initializing shell..."
+export PATH="$HOME/miniforge3/bin:$PATH"
+~/miniforge3/bin/conda init bash
 
-# 5. Install Jupyter and others
-echo "Installing Jupyter Notebook and ipykernel..."
-conda install -y jupyter notebook ipykernel
+# Make conda usable in the current shell session
+source ~/miniforge3/etc/profile.d/conda.sh
+echo "Shell initialization completed."
 
-# 6. Disable auto-activation
-conda config --set auto_activate_base false
+# 4. Force conda-forge only (block the paid Anaconda 'defaults' channel)
+echo ""
+echo "[4/5] Configuring channels (conda-forge only)..."
+~/miniforge3/bin/conda config --remove channels defaults 2>/dev/null || true
+~/miniforge3/bin/conda config --add channels conda-forge
+~/miniforge3/bin/conda config --set channel_priority strict
+# Don't auto-activate the base env on every shell start
+~/miniforge3/bin/conda config --set auto_activate_base false
+echo "Channel configuration completed."
 
-echo "--------------------------------------------------"
-echo "Miniconda setup is completed successfully!"
-echo "--------------------------------------------------"
+# 5. Verify
+echo ""
+echo "[5/5] Verifying installation..."
+echo ""
+echo "--- Mamba version ---"
+~/miniforge3/bin/mamba --version
+
+echo ""
+echo "--- Configured channels (should be conda-forge only) ---"
+~/miniforge3/bin/conda config --show channels
+
+echo ""
+echo "=================================================="
+echo " Mamba (Miniforge) installation completed!"
+echo ""
+echo " Open a new terminal or run:  source ~/.bashrc"
+echo ""
+echo " Usage:"
+echo "   mamba install <package>"
+echo "   mamba create -n myenv python=3.11"
+echo "=================================================="

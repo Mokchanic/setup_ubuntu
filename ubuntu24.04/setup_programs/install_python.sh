@@ -1,17 +1,22 @@
 #!/bin/bash
+set -e
 
-# Update package lists
-echo "Updating package lists..."
-sudo apt-get update
+echo "=================================================="
+echo " Python 3 Installation"
+echo "=================================================="
 
-# Install Python3, Pip, and Venv (Recommended for 24.04)
-echo "Installing Python3, Pip, and Venv..."
-sudo apt-get install -y python3 python3-pip python3-venv
+sudo apt-get update -q
+sudo apt-get install -y python3 python3-pip python3-venv python3-dev
 
-# Verify installed versions
 echo "------------------------------"
 python3 --version
 pip3 --version
 echo "------------------------------"
-
-echo "Python3 installation completed."
+echo "Python 3 installation completed."
+echo ""
+echo "Note: Ubuntu 24.04 enforces PEP 668 (externally-managed-environment)."
+echo "  System-wide 'pip install' is blocked by default."
+echo "  Use one of the following instead:"
+echo "    - python3 -m venv .venv && source .venv/bin/activate"
+echo "    - pipx install <package>        (for CLI tools)"
+echo "    - mamba/conda env               (installed by install_conda.sh)"
